@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openapi-to-docs"
+version = "0.1.0"
+description = "Generate readable Markdown API documentation from an OpenAPI 3.x spec (JSON or YAML)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Alexander Imanuel Widjanarko", email = "alexanderiw@student.ub.ac.id" }]
+keywords = ["openapi", "swagger", "api documentation", "markdown", "docs generator", "technical writing"]
+dependencies = ["PyYAML>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+openapi-to-docs = "openapi_to_docs.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/alexanderimanuel/openapi-to-docs"
+Author = "https://alexiw.my.id"
+
+[tool.setuptools.packages.find]
+include = ["openapi_to_docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

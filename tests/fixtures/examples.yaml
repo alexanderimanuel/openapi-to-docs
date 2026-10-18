@@ -1,0 +1,122 @@
+# Exercises example generation: values from formats, enums and defaults; explicit examples at
+# schema, media-type and components level; readOnly / writeOnly; oneOf.
+openapi: 3.1.0
+info:
+  title: Examples API
+  version: "0.1"
+paths:
+  /accounts:
+    post:
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Account"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+              examples:
+                sample:
+                  $ref: "#/components/examples/AccountCreated"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 400
+                message: "email is required"
+  /payment-methods:
+    get:
+      summary: List payment methods
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentMethod"
+            text/csv:
+              schema:
+                type: string
+              example: "id,kind\n1,card"
+components:
+  examples:
+    AccountCreated:
+      value:
+        id: 42
+        email: ada@example.com
+        plan: pro
+        createdAt: "2024-03-01T10:00:00Z"
+  schemas:
+    Account:
+      type: object
+      required: [email]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        plan:
+          type: string
+          enum: [free, pro]
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+        website:
+          type: [string, "null"]
+          format: uri
+        settings:
+          type: object
+          additionalProperties:
+            type: boolean
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    Card:
+      type: object
+      required: [kind, last4]
+      properties:
+        kind:
+          type: string
+          const: card
+        last4:
+          type: string
+          pattern: "^[0-9]{4}$"
+          example: "4242"
+    BankAccount:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: bank
+        iban:
+          type: string
+    PaymentMethod:
+      oneOf:
+        - $ref: "#/components/schemas/Card"
+        - $ref: "#/components/schemas/BankAccount"

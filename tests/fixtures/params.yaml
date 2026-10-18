@@ -1,0 +1,53 @@
+# Exercises parameter tables: path-level parameters, operation-level overrides, every location,
+# enum / default / example rendering and deprecation.
+openapi: 3.0.3
+info:
+  title: Params API
+  version: "2.0"
+paths:
+  /items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        description: Item identifier
+        schema:
+          type: integer
+          format: int64
+      - name: X-Trace
+        in: header
+        description: Path-level trace header
+        schema:
+          type: string
+    get:
+      summary: Get an item
+      parameters:
+        - name: X-Trace
+          in: header
+          description: Overridden at operation level
+          schema:
+            type: string
+        - name: expand
+          in: query
+          description: Related objects to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [owner, history]
+        - name: format
+          in: query
+          deprecated: true
+          schema:
+            type: string
+            default: json
+          example: xml
+        - name: session
+          in: cookie
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 64
+      responses:
+        "200":
+          description: OK

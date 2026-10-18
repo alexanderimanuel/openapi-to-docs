@@ -1,0 +1,103 @@
+# Exercises $ref resolution: component parameters, request bodies, responses, nested schemas,
+# allOf composition and a recursive schema.
+openapi: 3.0.3
+info:
+  title: Refs API
+  version: "1.0"
+tags:
+  - name: folders
+    description: Folder tree
+paths:
+  /folders/{folderId}:
+    parameters:
+      - $ref: "#/components/parameters/FolderId"
+    get:
+      tags: [folders]
+      summary: Get a folder
+      operationId: getFolder
+      responses:
+        "200":
+          description: The folder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [folders]
+      summary: Replace a folder
+      requestBody:
+        $ref: "#/components/requestBodies/FolderBody"
+      responses:
+        "204":
+          description: Replaced
+components:
+  parameters:
+    FolderId:
+      name: folderId
+      in: path
+      required: true
+      description: Folder identifier
+      schema:
+        type: string
+        format: uuid
+  requestBodies:
+    FolderBody:
+      required: true
+      description: Folder to store
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FolderInput"
+  responses:
+    NotFound:
+      description: No such folder
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Timestamps:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required: [createdAt]
+    FolderInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Invoices
+        owner:
+          $ref: "#/components/schemas/User"
+    Folder:
+      allOf:
+        - $ref: "#/components/schemas/FolderInput"
+        - $ref: "#/components/schemas/Timestamps"
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: "#/components/schemas/Folder"
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 7
+        email:
+          type: string
+          format: email
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string

@@ -1,0 +1,75 @@
+# Smallest useful spec for CLI tests: two tags, one untagged operation, one security scheme.
+openapi: 3.0.3
+info:
+  title: Tiny API
+  version: "1.0"
+  description: A very small API.
+servers:
+  - url: https://api.example.com/v1
+tags:
+  - name: pets
+    description: Pets you own
+  - name: owners
+security:
+  - bearer: []
+paths:
+  /pets:
+    get:
+      tags: [pets]
+      summary: List pets
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+    post:
+      tags: [pets]
+      summary: Add a pet
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "201":
+          description: Created
+  /owners/{ownerId}:
+    get:
+      tags: [owners]
+      summary: Get an owner
+      parameters:
+        - name: ownerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Alive
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Pet:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Rex
+        age:
+          type: integer
